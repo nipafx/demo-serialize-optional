@@ -4,25 +4,22 @@ import java.io.Serializable;
 import java.util.Objects;
 import java.util.Optional;
 
-public final class SerializableOptional<T> implements Serializable {
+public final class SerializableOptional<T extends Serializable> implements Serializable {
 
 	private static final long serialVersionUID = -652697447004597911L;
 
-	private boolean present;
-
-	private T value;
+	private final T value;
 
 	private SerializableOptional() {
-		present = false;
+		value = null;
 	}
 
 	private SerializableOptional(T value) {
 		Objects.requireNonNull(value, "The argument 'value' must not be null.");
-		this.present = true;
 		this.value = value;
 	}
 
-	public static <T> SerializableOptional<T> fromOptional(Optional<T> optional) {
+	public static <T extends Serializable> SerializableOptional<T> fromOptional(Optional<T> optional) {
 		if (optional.isPresent())
 			return new SerializableOptional<T>(optional.get());
 		else
