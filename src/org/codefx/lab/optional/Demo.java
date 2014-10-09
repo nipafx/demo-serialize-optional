@@ -16,22 +16,27 @@ public class Demo {
 		demo.serializeString();
 		demo.failSerializingOptional();
 		demo.serializeSerializableOptional();
+
+		print("");
+
+		demo.serializeClassUsingOptional();
 	}
+
+	// serialize "simple" objects, i.e. ones which contain no further instances, to demo serialization in general
 
 	private void serializeString() throws Exception {
 		String someString = "a string";
 		String deserializedString = serializeAndDeserialize(someString);
-		System.out.println("The deserialized string is \"" + deserializedString + "\".");
+		print("The deserialized 'String' is \"" + deserializedString + "\".");
 	}
 
 	private void failSerializingOptional() throws Exception {
 		try {
 			Optional<String> someOptional = Optional.of("another string");
 			Optional<String> deserializedOptional = serializeAndDeserialize(someOptional);
-			System.out.println("The deserialized Optional should have the value \"" + deserializedOptional.get()
-					+ "\".");
+			print("The deserialized 'Optional' should have the value \"" + deserializedOptional.get() + "\".");
 		} catch (NotSerializableException e) {
-			System.out.println("Serialization of Optional failed as expected.");
+			print("Serialization of 'Optional' failed as expected.");
 		}
 	}
 
@@ -39,7 +44,23 @@ public class Demo {
 		Optional<String> someOptional = Optional.of("another string");
 		SerializableOptional<String> serializableOptional = SerializableOptional.fromOptional(someOptional);
 		Optional<String> deserializedOptional = serializeAndDeserialize(serializableOptional).toOptional();
-		System.out.println("The deserialized SerializableOptional has the value \"" + deserializedOptional.get());
+		print("The deserialized 'SerializableOptional' has the value \"" + deserializedOptional.get() + "\".");
+	}
+
+	// serialize "complex" objects, i.e. ones which in a real application would contain more references to other
+	// instances, to demo serialization in practice 
+
+	private void serializeClassUsingOptional() throws Exception {
+		try {
+			ClassUsingOptional<String> usingOptional =
+					new ClassUsingOptional<String>("optionalValue", "otherAttributeValue");
+			ClassUsingOptional<String> deserializedUsingOptional = serializeAndDeserialize(usingOptional);
+			print("The deserialized 'ClassUsingOptional' should have the values \""
+					+ deserializedUsingOptional.getOptional().get() + "\" / \""
+					+ deserializedUsingOptional.getOtherAttribute() + "\".");
+		} catch (NotSerializableException e) {
+			print("Serialization of 'ClassUsingOptional' failed as expected.");
+		}
 	}
 
 	/**
@@ -64,4 +85,15 @@ public class Demo {
 			return deserialized;
 		}
 	}
+
+	/**
+	 * Prints the specified text to the console.
+	 *
+	 * @param text
+	 *            the text to print
+	 */
+	private static void print(String text) {
+		System.out.println(text);
+	}
+
 }
