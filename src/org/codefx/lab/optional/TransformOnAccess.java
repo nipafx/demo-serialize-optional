@@ -7,6 +7,8 @@ import java.util.Optional;
  * Demonstrates how to make a class serializable which has an {@link Optional} attribute.
  * <p>
  * Uses the "Transform On Access" approach as described in {@link SerializableOptional}.
+ * <p>
+ * Note that a class exposing an optional attribute via accessors smells of bad design. This is just for demo purposes!
  */
 public class TransformOnAccess<T extends Serializable> implements Serializable {
 

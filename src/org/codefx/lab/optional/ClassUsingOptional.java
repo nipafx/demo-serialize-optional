@@ -3,6 +3,12 @@ package org.codefx.lab.optional;
 import java.io.Serializable;
 import java.util.Optional;
 
+/**
+ * A class which has an attribute of type {@link Optional}. Because it does not treat this correctly, it fails to be
+ * executed.
+ * <p>
+ * Note that a class exposing an optional attribute via accessors smells of bad design. This is just for demo purposes!
+ */
 public class ClassUsingOptional<T> implements Serializable {
 
 	// ATTRIBUTES

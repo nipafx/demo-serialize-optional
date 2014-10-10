@@ -8,16 +8,19 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Convenience class to wrap an {@link Optional} for serialization.
+ * Convenience class to wrap an {@link Optional} for serialization. Instances of this class are immutable.
  * <p>
  * Note that it does not provide any of the methods {@code Optional} has as its only goal is to enable serialization.
  * But it holds a reference to the {@code Optional} which was used to create it (can be accessed with
- * {@link #asOptional()}). Instances of this class are immutable.
+ * {@link #asOptional()}). This {@code Optional} instance is of course reconstructed on deserialization, so it will not
+ * the same as the one specified for its creation.
  * <p>
- * There are two ways to use this class to serialize instances which have an optional attribute.
+ * The class can be used as an argument or return type for serialization-based RPC technologies like RMI.
  * <p>
- * <h2>Transform For (De)Serialization</h2> The attribute can be declared as
- * {@code transient Optional<T> optionalAttribute}, which will exclude it from serialization.
+ * There are three ways to use this class to serialize instances which have an optional attribute.
+ * <p>
+ * <h2>Transform On Serialization</h2> The attribute can be declared as {@code transient Optional<T> optionalAttribute},
+ * which will exclude it from serialization.
  * <p>
  * The class then needs to implement custom (de)serialization methods {@code writeObject} and {@code readObject}. They
  * must transform the {@code optionalAttribute} to a {@code SerializableOptional} when writing the object and after
@@ -40,8 +43,17 @@ import java.util.Optional;
  * 		((SerializableOptional<T>) in.readObject()).toOptional();
  * }
  * </pre>
- * <h2>Transform For Access</h2> The attribute can be declared as {@code SerializableOptional<T> optionalAttribute}.
- * This will include it in the (de)serialization process so it does not need to be customized.
+ * <p>
+ * <h2>Transform On Replace</h2> If the class is serialized using the Serialization Proxy Pattern (see <i>Effective
+ * Java</i> by Joshua Bloch, Item 78), the proxy can have an instance of {@link SerializableOptional} to clearly denote
+ * the attribute as being optional.
+ * <p>
+ * In this case, the proxy needs to transform the {@code Optional} to {@code SerializableOptional} in its constructor
+ * (using {@link SerializableOptional#fromOptional(Optional)}) and the other way in {@code readResolve()} (with
+ * {@link SerializableOptional#asOptional()}).
+ * <p>
+ * <h2>Transform On Access</h2> The attribute can be declared as {@code SerializableOptional<T> optionalAttribute}. This
+ * will include it in the (de)serialization process so it does not need to be customized.
  * <p>
  * But methods interacting with the attribute need to get an {@code Optional} instead. This can easily be done by
  * writing the accessor methods such that they transform the attribute on each access.
@@ -49,10 +61,11 @@ import java.util.Optional;
  * Note that {@link #asOptional()} simply returns the {@code Optional} which with this instance was created so no
  * constructor needs to be invoked.
  * <p>
- * <h3>Code Example</h3>
+ * <h3>Code Example</h3> Note that it is rarely useful to expose an optional attribute via accessor methods. Hence the
+ * following are private and for use inside the class.
  * 
  * <pre>
- * public Optional<T> getOptionalAttribute() {
+ * private Optional<T> getOptionalAttribute() {
  * 	return optionalAttribute.asOptional();
  * }
  * 
