@@ -15,7 +15,8 @@ public class Demo {
 
 		demo.serializeString();
 		demo.failSerializingOptional();
-		demo.serializeSerializableOptional();
+		demo.serializeEmptySerializableOptional();
+		demo.serializeNonEmptySerializableOptional();
 
 		print("");
 
@@ -40,11 +41,18 @@ public class Demo {
 		}
 	}
 
-	private void serializeSerializableOptional() throws Exception {
+	private void serializeEmptySerializableOptional() throws Exception {
+		Optional<String> someOptional = Optional.empty();
+		SerializableOptional<String> serializableOptional = SerializableOptional.fromOptional(someOptional);
+		Optional<String> deserializedOptional = serializeAndDeserialize(serializableOptional).asOptional();
+		print("The deserialized empty 'SerializableOptional' has no value: " + !deserializedOptional.isPresent() + ".");
+	}
+
+	private void serializeNonEmptySerializableOptional() throws Exception {
 		Optional<String> someOptional = Optional.of("another string");
 		SerializableOptional<String> serializableOptional = SerializableOptional.fromOptional(someOptional);
-		Optional<String> deserializedOptional = serializeAndDeserialize(serializableOptional).toOptional();
-		print("The deserialized 'SerializableOptional' has the value \"" + deserializedOptional.get() + "\".");
+		Optional<String> deserializedOptional = serializeAndDeserialize(serializableOptional).asOptional();
+		print("The deserialized non-empty 'SerializableOptional' has the value \"" + deserializedOptional.get() + "\".");
 	}
 
 	// serialize "complex" objects, i.e. ones which in a real application would contain more references to other
