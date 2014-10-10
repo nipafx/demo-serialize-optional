@@ -1,8 +1,8 @@
 package org.codefx.lab.optional;
 
 import java.io.IOException;
+import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Objects;
 import java.util.Optional;
@@ -74,7 +74,7 @@ public final class SerializableOptional<T extends Serializable> implements Seria
 	 * The wrapped {@link Optional}. Note that this attribute is transient so it will not be (de)serializd
 	 * automatically.
 	 */
-	private transient Optional<T> optional;
+	private final Optional<T> optional;
 
 	// CONSTRUCTION AND TRANSFORMATION
 
@@ -116,21 +116,28 @@ public final class SerializableOptional<T extends Serializable> implements Seria
 
 	// SERIALIZATION
 
-	private void writeObject(ObjectOutputStream out) throws IOException {
-		out.defaultWriteObject();
-		// write the value contained in #optional
-		if (optional.isPresent())
-			out.writeObject(optional.get());
-		else
-			out.writeObject(null);
+	private Object writeReplace() {
+		return new SerializationProxy<>(this);
 	}
 
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
-		// read the value and create an 'Optional' from it
-		@SuppressWarnings("unchecked")
-		T optionalValue = (T) in.readObject();
-		optional = Optional.ofNullable(optionalValue);
+		throw new InvalidObjectException("Serialization proxy expected.");
+	}
+
+	private static class SerializationProxy<T extends Serializable> implements Serializable {
+
+		private static final long serialVersionUID = -1326520485869949065L;
+
+		private final T value;
+
+		public SerializationProxy(SerializableOptional<T> serializableOptional) {
+			value = serializableOptional.asOptional().orElse(null);
+		}
+
+		private Object readResolve() {
+			return SerializableOptional.ofNullable(value);
+		}
+
 	}
 
 }
