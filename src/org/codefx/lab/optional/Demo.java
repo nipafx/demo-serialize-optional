@@ -24,7 +24,8 @@ public class Demo {
 
 		print("");
 
-		demo.serializeClassUsingOptional();
+		demo.failSerializingClassUsingOptional();
+		demo.serializeClassUsingOptionalCorrectly();
 		demo.serializeWithTransformOnSerialization();
 		demo.serializeWithTransformOnAccess();
 	}
@@ -79,12 +80,12 @@ public class Demo {
 	// instances, to demo serialization in practice 
 
 	/**
-	 * A class which contains an {@link Optional} can not be serialized directly.
+	 * A class which contains an {@link Optional} can not be serialized directly if not properly implemented.
 	 */
-	private void serializeClassUsingOptional() throws Exception {
+	private void failSerializingClassUsingOptional() throws Exception {
 		try {
 			ClassUsingOptional<String> usingOptional =
-					new ClassUsingOptional<String>("optionalValue", "otherAttributeValue");
+					new ClassUsingOptional<>("optionalValue", "otherAttributeValue");
 			ClassUsingOptional<String> deserializedUsingOptional = serializeAndDeserialize(usingOptional);
 			print("The deserialized 'ClassUsingOptional' should have the values \""
 					+ deserializedUsingOptional.getOptional().get() + "\" / \""
@@ -92,6 +93,19 @@ public class Demo {
 		} catch (NotSerializableException e) {
 			print("Serialization of 'ClassUsingOptional' failed as expected.");
 		}
+	}
+
+	/**
+	 * A class which contains an {@link Optional} can be serialized directly if the implementation provides customized
+	 * (de)serialization methods.
+	 */
+	private void serializeClassUsingOptionalCorrectly() throws Exception {
+		ClassUsingOptionalCorrectly<String> usingOptional =
+				new ClassUsingOptionalCorrectly<>("optionalValue", "otherAttributeValue");
+		ClassUsingOptionalCorrectly<String> deserializedUsingOptional = serializeAndDeserialize(usingOptional);
+		print("The deserialized 'ClassUsingOptionalCorrectly' has the values \""
+				+ deserializedUsingOptional.getOptional().get() + "\" / \""
+				+ deserializedUsingOptional.getOtherAttribute() + "\".");
 	}
 
 	/**
