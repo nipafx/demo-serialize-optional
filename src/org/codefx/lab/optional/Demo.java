@@ -6,8 +6,12 @@ import java.io.FileOutputStream;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.Optional;
 
+/**
+ * Demonstrates serialization with {@link Optional} and {@link SerializableOptional}.
+ */
 public class Demo {
 
 	public static void main(String[] args) throws Exception {
@@ -29,12 +33,18 @@ public class Demo {
 
 	// serialize "simple" objects, i.e. ones which contain no further instances, to demo serialization in general
 
+	/**
+	 * To get started, serialize a string, deserialize it and print its value.
+	 */
 	private void serializeString() throws Exception {
 		String someString = "a string";
 		String deserializedString = serializeAndDeserialize(someString);
 		print("The deserialized 'String' is \"" + deserializedString + "\".");
 	}
 
+	/**
+	 * Try the same with an {@code Optional<String>}, which will fail as {@link Optional} is not {@link Serializable}.
+	 */
 	private void failSerializingOptional() throws Exception {
 		try {
 			Optional<String> someOptional = Optional.of("another string");
@@ -45,6 +55,9 @@ public class Demo {
 		}
 	}
 
+	/**
+	 * Create a {@link SerializableOptional} from an empty {@link Optional} and (de)serialize it successfully.
+	 */
 	private void serializeEmptySerializableOptional() throws Exception {
 		Optional<String> someOptional = Optional.empty();
 		SerializableOptional<String> serializableOptional = SerializableOptional.fromOptional(someOptional);
@@ -52,6 +65,9 @@ public class Demo {
 		print("The deserialized empty 'SerializableOptional' has no value: " + !deserializedOptional.isPresent() + ".");
 	}
 
+	/**
+	 * Create a {@link SerializableOptional} from a nonempty {@link Optional} and (de)serialize it successfully.
+	 */
 	private void serializeNonEmptySerializableOptional() throws Exception {
 		Optional<String> someOptional = Optional.of("another string");
 		SerializableOptional<String> serializableOptional = SerializableOptional.fromOptional(someOptional);
@@ -62,6 +78,9 @@ public class Demo {
 	// serialize "complex" objects, i.e. ones which in a real application would contain more references to other
 	// instances, to demo serialization in practice 
 
+	/**
+	 * A class which contains an {@link Optional} can not be serialized directly.
+	 */
 	private void serializeClassUsingOptional() throws Exception {
 		try {
 			ClassUsingOptional<String> usingOptional =
@@ -75,6 +94,10 @@ public class Demo {
 		}
 	}
 
+	/**
+	 * But it can customize the (de)serialization and transform the {@link Optional} to a {@link SerializableOptional}
+	 * on write and the other way on read.
+	 */
 	private void serializeWithTransformOnSerialization() throws Exception {
 		TransformOnSerialization<String> usingOptional =
 				new TransformOnSerialization<>("optionalValue", "otherAttributeValue");
@@ -84,6 +107,10 @@ public class Demo {
 				+ deserializedUsingOptional.getOtherAttribute() + "\".");
 	}
 
+	/**
+	 * Another possibility is to declare the attribute as {@link SerializableOptional} which means the default
+	 * (de)serialization process works. Transformation than has to happen on each access to the attribute.
+	 */
 	private void serializeWithTransformOnAccess() throws Exception {
 		TransformOnAccess<String> usingOptional =
 				new TransformOnAccess<>("optionalValue", "otherAttributeValue");

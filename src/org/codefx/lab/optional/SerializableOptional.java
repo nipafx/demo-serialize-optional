@@ -10,7 +10,9 @@ import java.util.Optional;
 /**
  * Convenience class to wrap an {@link Optional} for serialization.
  * <p>
- * Instances of this class are immutable. They hold a reference to the {@code Optional} which was used to create them.
+ * Note that it does not provide any of the methods {@code Optional} has as its only goal is to enable serialization.
+ * But it holds a reference to the {@code Optional} which was used to create it (can be accessed with
+ * {@link #asOptional()}). Instances of this class are immutable.
  * <p>
  * There are two ways to use this class to serialize instances which have an optional attribute.
  * <p>
