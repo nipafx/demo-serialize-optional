@@ -21,7 +21,11 @@ public class Demo {
 		print("");
 
 		demo.serializeClassUsingOptional();
+		demo.serializeWithTransformOnSerialization();
+		demo.serializeWithTransformOnAccess();
 	}
+
+	// DEMO
 
 	// serialize "simple" objects, i.e. ones which contain no further instances, to demo serialization in general
 
@@ -70,6 +74,26 @@ public class Demo {
 			print("Serialization of 'ClassUsingOptional' failed as expected.");
 		}
 	}
+
+	private void serializeWithTransformOnSerialization() throws Exception {
+		TransformOnSerialization<String> usingOptional =
+				new TransformOnSerialization<>("optionalValue", "otherAttributeValue");
+		TransformOnSerialization<String> deserializedUsingOptional = serializeAndDeserialize(usingOptional);
+		print("The deserialized 'TransformOnSerialization' has the values \""
+				+ deserializedUsingOptional.getOptional().get() + "\" / \""
+				+ deserializedUsingOptional.getOtherAttribute() + "\".");
+	}
+
+	private void serializeWithTransformOnAccess() throws Exception {
+		TransformOnAccess<String> usingOptional =
+				new TransformOnAccess<>("optionalValue", "otherAttributeValue");
+		TransformOnAccess<String> deserializedUsingOptional = serializeAndDeserialize(usingOptional);
+		print("The deserialized 'TransformOnAccess' has the values \""
+				+ deserializedUsingOptional.getOptional().get() + "\" / \""
+				+ deserializedUsingOptional.getOtherAttribute() + "\".");
+	}
+
+	// USABILITY
 
 	/**
 	 * Serializes the specified instance to disk. Then deserializes the file and returns the deserialized value.
