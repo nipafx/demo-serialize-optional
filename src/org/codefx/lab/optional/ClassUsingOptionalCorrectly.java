@@ -30,6 +30,10 @@ public class ClassUsingOptionalCorrectly<T> implements Serializable {
 
 	// SERIALIZATION
 
+	/*
+	 * Alternatively the Serialization Proxy Pattern could be used. See the SerializableOptional for how to do that.
+	 */
+
 	private void writeObject(ObjectOutputStream out) throws IOException {
 		out.defaultWriteObject();
 		// write the value contained in #optional
