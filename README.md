@@ -1,6 +1,6 @@
 # Serialize Optional
 
-This project provides the code samples for the CodeFX post about serializing `Optional`. It demonstrates how an `Optional` instance can be (de)serialized using different approaches.
+This project provides the code samples for the [CodeFX post about serializing `Optional`](URL). It demonstrates how an `Optional` instance can be (de)serialized using different approaches.
 
 For attributes it shows how it fails and how it is done correctly. It provides a class `SerializableOptional`, which wraps an optional for serialization (e.g. for RMI) and some classes using it. Finally, it provides a demo which ties it all together.
 
@@ -8,19 +8,19 @@ For attributes it shows how it fails and how it is done correctly. It provides a
 
 ### Classes Using Optional
 
-...
+The classes [`ClassUsingOptional`](https://github.com/CodeFX-org/demo-serialize-optional/blob/master/src/org/codefx/lab/optional/ClassUsingOptional.java) and [`ClassUsingOptionalCorrectly`](https://github.com/CodeFX-org/demo-serialize-optional/blob/master/src/org/codefx/lab/optional/ClassUsingOptionalCorrectly.java) contain a field with type `Optional`. While the first will fail at serialization done the simple way, the second does not because it provides a custom serialization mechanism. 
 
 ### SerializableOptional
 
-A simple wrapper for an `Optional` which implements `Serializable`. It uses the Serialization Proxy Pattern (see *Effective Java* by Joshua Bloch, Item 78) to write and read the wrapped optional's value.
+The [`SerializableOptional`](https://github.com/CodeFX-org/demo-serialize-optional/blob/master/src/org/codefx/lab/optional/SerializableOptional.java) is a simple wrapper for an `Optional` which implements `Serializable`. It uses the Serialization Proxy Pattern (see *Effective Java* by Joshua Bloch, Item 78) to write and read the wrapped optional's value.
 
 ### Classes Using SerializableOptional
 
-...
+The classes `TransformOn...` show different approaches how `SerializableOptional` can be used to serialize a class with an optional field.
 
 ## Disclaimer
 
-That `Optional` is not serializable is no mere oversight. A [discussion on the OpenJDK mailing list](http://mail.openjdk.java.net/pipermail/jdk8-dev/2013-September/thread.html#3186) gives some insights into the reasoning of the [JSR 335 Expert Group](https://www.jcp.org/en/jsr/detail?id=335), which was responsible for its inclusion in Java 8. Some quotes (out of temporal order):
+That `Optional` is not serializable is no mere oversight. The [blog post mentioned above](URL) and a [discussion on the OpenJDK mailing list](http://mail.openjdk.java.net/pipermail/jdk8-dev/2013-September/thread.html#3186) give some insights into the reasoning of the [JSR 335 Expert Group](https://www.jcp.org/en/jsr/detail?id=335), which was responsible for its inclusion in Java 8. Some quotes (out of temporal order):
 
 Optional was only meant for return values, so there is no need to serialize it:
 
