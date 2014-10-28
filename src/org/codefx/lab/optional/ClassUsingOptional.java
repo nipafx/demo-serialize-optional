@@ -4,10 +4,10 @@ import java.io.Serializable;
 import java.util.Optional;
 
 /**
- * A class which has an attribute of type {@link Optional}. Because it does not treat this correctly, it fails to be
+ * A class which has an field of type {@link Optional}. Because it does not treat this correctly, it fails to be
  * executed.
  * <p>
- * Note that a class exposing an optional attribute via accessors smells of bad design. This is just for demo purposes!
+ * Note that a class exposing an optional field via accessors smells of bad design. This is just for demo purposes!
  */
 public class ClassUsingOptional<T> implements Serializable {
 
@@ -17,13 +17,13 @@ public class ClassUsingOptional<T> implements Serializable {
 
 	private final Optional<T> optional;
 
-	private final T otherAttribute;
+	private final T otherField;
 
 	// CONSTRUCTION
 
-	public ClassUsingOptional(T optionalValue, T otherAttributeValue) {
+	public ClassUsingOptional(T optionalValue, T otherFieldValue) {
 		this.optional = Optional.ofNullable(optionalValue);
-		this.otherAttribute = otherAttributeValue;
+		this.otherField = otherFieldValue;
 	}
 
 	// ATTRIBUTE ACCESS
@@ -32,8 +32,8 @@ public class ClassUsingOptional<T> implements Serializable {
 		return optional;
 	}
 
-	public T getOtherAttribute() {
-		return otherAttribute;
+	public T getOtherField() {
+		return otherField;
 	}
 
 }

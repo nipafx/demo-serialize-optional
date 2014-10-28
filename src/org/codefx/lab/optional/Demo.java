@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Optional;
+import java.util.Random;
 
 /**
  * Demonstrates serialization with {@link Optional} and {@link SerializableOptional}.
@@ -28,6 +29,10 @@ public class Demo {
 		demo.serializeClassUsingOptionalCorrectly();
 		demo.serializeWithTransformOnSerialization();
 		demo.serializeWithTransformOnAccess();
+
+		print("");
+
+		demo.callMethods();
 	}
 
 	// DEMO
@@ -85,11 +90,11 @@ public class Demo {
 	private void failSerializingClassUsingOptional() throws Exception {
 		try {
 			ClassUsingOptional<String> usingOptional =
-					new ClassUsingOptional<>("optionalValue", "otherAttributeValue");
+					new ClassUsingOptional<>("optionalValue", "otherFieldValue");
 			ClassUsingOptional<String> deserializedUsingOptional = serializeAndDeserialize(usingOptional);
 			print("The deserialized 'ClassUsingOptional' should have the values \""
 					+ deserializedUsingOptional.getOptional().get() + "\" / \""
-					+ deserializedUsingOptional.getOtherAttribute() + "\".");
+					+ deserializedUsingOptional.getOtherField() + "\".");
 		} catch (NotSerializableException e) {
 			print("Serialization of 'ClassUsingOptional' failed as expected.");
 		}
@@ -101,11 +106,11 @@ public class Demo {
 	 */
 	private void serializeClassUsingOptionalCorrectly() throws Exception {
 		ClassUsingOptionalCorrectly<String> usingOptional =
-				new ClassUsingOptionalCorrectly<>("optionalValue", "otherAttributeValue");
+				new ClassUsingOptionalCorrectly<>("optionalValue", "otherFieldValue");
 		ClassUsingOptionalCorrectly<String> deserializedUsingOptional = serializeAndDeserialize(usingOptional);
 		print("The deserialized 'ClassUsingOptionalCorrectly' has the values \""
 				+ deserializedUsingOptional.getOptional().get() + "\" / \""
-				+ deserializedUsingOptional.getOtherAttribute() + "\".");
+				+ deserializedUsingOptional.getOtherField() + "\".");
 	}
 
 	/**
@@ -114,24 +119,39 @@ public class Demo {
 	 */
 	private void serializeWithTransformOnSerialization() throws Exception {
 		TransformOnSerialization<String> usingOptional =
-				new TransformOnSerialization<>("optionalValue", "otherAttributeValue");
+				new TransformOnSerialization<>("optionalValue", "otherFieldValue");
 		TransformOnSerialization<String> deserializedUsingOptional = serializeAndDeserialize(usingOptional);
 		print("The deserialized 'TransformOnSerialization' has the values \""
 				+ deserializedUsingOptional.getOptional().get() + "\" / \""
-				+ deserializedUsingOptional.getOtherAttribute() + "\".");
+				+ deserializedUsingOptional.getOtherField() + "\".");
 	}
 
 	/**
-	 * Another possibility is to declare the attribute as {@link SerializableOptional} which means the default
-	 * (de)serialization process works. Transformation than has to happen on each access to the attribute.
+	 * Another possibility is to declare the field as {@link SerializableOptional} which means the default
+	 * (de)serialization process works. Transformation then has to happen on each access to the field.
 	 */
 	private void serializeWithTransformOnAccess() throws Exception {
 		TransformOnAccess<String> usingOptional =
-				new TransformOnAccess<>("optionalValue", "otherAttributeValue");
+				new TransformOnAccess<>("optionalValue", "otherFieldValue");
 		TransformOnAccess<String> deserializedUsingOptional = serializeAndDeserialize(usingOptional);
 		print("The deserialized 'TransformOnAccess' has the values \""
 				+ deserializedUsingOptional.getOptional().get() + "\" / \""
-				+ deserializedUsingOptional.getOtherAttribute() + "\".");
+				+ deserializedUsingOptional.getOtherField() + "\".");
+	}
+
+	// use 'SerializableOptional' in method signatures
+
+	/**
+	 * Shows how to quickly wrap and unwrap an {@link Optional} for RPC method calls which rely on serialization.
+	 */
+	private void callMethods() {
+		SearchAndRegister searchAndLog = new SearchAndRegister();
+		for (int id = 0; id < 7; id++) {
+			// unwrap the returned optional using 'asOptional'
+			Optional<String> searchResult = searchAndLog.search(id).asOptional();
+			// wrap the optional using 'fromOptional'
+			searchAndLog.log(id, SerializableOptional.fromOptional(searchResult));
+		}
 	}
 
 	// USABILITY
@@ -167,6 +187,26 @@ public class Demo {
 	 */
 	private static void print(String text) {
 		System.out.println(text);
+	}
+
+	// INNER CLASS FOR METHOD CALLS
+
+	private static class SearchAndRegister {
+
+		Random random = new Random();
+
+		public SerializableOptional<String> search(int id) {
+			boolean searchSuccessfull = random.nextBoolean();
+			if (searchSuccessfull)
+				return SerializableOptional.of("found something!");
+			else
+				return SerializableOptional.empty();
+		}
+
+		public void log(int id, SerializableOptional<String> item) {
+			print("Search result for id " + id + ": " + item.asOptional().orElse("empty search result"));
+		}
+
 	}
 
 }

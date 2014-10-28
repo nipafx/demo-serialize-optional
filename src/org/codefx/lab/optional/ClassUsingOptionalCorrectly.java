@@ -7,9 +7,9 @@ import java.io.Serializable;
 import java.util.Optional;
 
 /**
- * A class which has an attribute of type {@link Optional}. It customizes (de)serialization and is thus serializable.
+ * A class which has an field of type {@link Optional}. It customizes (de)serialization and is thus serializable.
  * <p>
- * Note that a class exposing an optional attribute via accessors smells of bad design. This is just for demo purposes!
+ * Note that a class exposing an optional field via accessors smells of bad design. This is just for demo purposes!
  */
 public class ClassUsingOptionalCorrectly<T> implements Serializable {
 
@@ -19,13 +19,13 @@ public class ClassUsingOptionalCorrectly<T> implements Serializable {
 
 	private transient Optional<T> optional;
 
-	private final T otherAttribute;
+	private final T otherField;
 
 	// CONSTRUCTION
 
-	public ClassUsingOptionalCorrectly(T optionalValue, T otherAttributeValue) {
+	public ClassUsingOptionalCorrectly(T optionalValue, T otherFieldValue) {
 		this.optional = Optional.ofNullable(optionalValue);
-		this.otherAttribute = otherAttributeValue;
+		this.otherField = otherFieldValue;
 	}
 
 	// SERIALIZATION
@@ -52,8 +52,8 @@ public class ClassUsingOptionalCorrectly<T> implements Serializable {
 		return optional;
 	}
 
-	public T getOtherAttribute() {
-		return otherAttribute;
+	public T getOtherField() {
+		return otherField;
 	}
 
 }

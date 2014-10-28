@@ -17,13 +17,13 @@ import java.util.Optional;
  * <p>
  * The class can be used as an argument or return type for serialization-based RPC technologies like RMI.
  * <p>
- * There are three ways to use this class to serialize instances which have an optional attribute.
+ * There are three ways to use this class to serialize instances which have an optional field.
  * <p>
- * <h2>Transform On Serialization</h2> The attribute can be declared as {@code transient Optional<T> optionalAttribute},
+ * <h2>Transform On Serialization</h2> The field can be declared as {@code transient Optional<T> optionalField},
  * which will exclude it from serialization.
  * <p>
  * The class then needs to implement custom (de)serialization methods {@code writeObject} and {@code readObject}. They
- * must transform the {@code optionalAttribute} to a {@code SerializableOptional} when writing the object and after
+ * must transform the {@code optionalField} to a {@code SerializableOptional} when writing the object and after
  * reading such an instance transform it back to an {@code Optional}.
  * <p>
  * <h3>Code Example</h3>
@@ -32,45 +32,45 @@ import java.util.Optional;
  * private void writeObject(ObjectOutputStream out) throws IOException {
  * 	out.defaultWriteObject();
  * 	out.writeObject(
- * 		SerializableOptional.fromOptional(optionalAttribute));
+ * 		SerializableOptional.fromOptional(optionalField));
  * }
  * 
  * private void readObject(ObjectInputStream in)
  * 	throws IOException, ClassNotFoundException {
  * 
  * 	in.defaultReadObject();
- * 	optionalAttribute =
+ * 	optionalField =
  * 		((SerializableOptional<T>) in.readObject()).toOptional();
  * }
  * </pre>
  * <p>
  * <h2>Transform On Replace</h2> If the class is serialized using the Serialization Proxy Pattern (see <i>Effective
  * Java</i> by Joshua Bloch, Item 78), the proxy can have an instance of {@link SerializableOptional} to clearly denote
- * the attribute as being optional.
+ * the field as being optional.
  * <p>
  * In this case, the proxy needs to transform the {@code Optional} to {@code SerializableOptional} in its constructor
  * (using {@link SerializableOptional#fromOptional(Optional)}) and the other way in {@code readResolve()} (with
  * {@link SerializableOptional#asOptional()}).
  * <p>
- * <h2>Transform On Access</h2> The attribute can be declared as {@code SerializableOptional<T> optionalAttribute}. This
+ * <h2>Transform On Access</h2> The field can be declared as {@code SerializableOptional<T> optionalField}. This
  * will include it in the (de)serialization process so it does not need to be customized.
  * <p>
- * But methods interacting with the attribute need to get an {@code Optional} instead. This can easily be done by
- * writing the accessor methods such that they transform the attribute on each access.
+ * But methods interacting with the field need to get an {@code Optional} instead. This can easily be done by writing
+ * the accessor methods such that they transform the field on each access.
  * <p>
  * Note that {@link #asOptional()} simply returns the {@code Optional} which with this instance was created so no
  * constructor needs to be invoked.
  * <p>
- * <h3>Code Example</h3> Note that it is rarely useful to expose an optional attribute via accessor methods. Hence the
+ * <h3>Code Example</h3> Note that it is rarely useful to expose an optional field via accessor methods. Hence the
  * following are private and for use inside the class.
  * 
  * <pre>
- * private Optional<T> getOptionalAttribute() {
- * 	return optionalAttribute.asOptional();
+ * private Optional<T> getOptionalField() {
+ * 	return optionalField.asOptional();
  * }
  * 
- * private void setOptionalAttribute(Optional<T> optionalAttribute) {
- * 	this.optionalAttribute = SerializableOptional.fromOptional(optionalAttribute);
+ * private void setOptionalField(Optional<T> optionalField) {
+ * 	this.optionalField = SerializableOptional.fromOptional(optionalField);
  * }
  * </pre>
  * 
@@ -84,8 +84,7 @@ public final class SerializableOptional<T extends Serializable> implements Seria
 	private static final long serialVersionUID = -652697447004597911L;
 
 	/**
-	 * The wrapped {@link Optional}. Note that this attribute is transient so it will not be (de)serializd
-	 * automatically.
+	 * The wrapped {@link Optional}. Note that this field is transient so it will not be (de)serializd automatically.
 	 */
 	private final Optional<T> optional;
 
@@ -99,6 +98,8 @@ public final class SerializableOptional<T extends Serializable> implements Seria
 	/**
 	 * Creates a serializable optional from the specified optional.
 	 * 
+	 * @param <T>
+	 *            the type of the wrapped value
 	 * @param optional
 	 *            the {@link Optional} from which the serializable wrapper will be created
 	 * @return a {@link SerializableOptional} which wraps the specified optional
@@ -108,18 +109,49 @@ public final class SerializableOptional<T extends Serializable> implements Seria
 	}
 
 	/**
-	 * Creates a serializable optional for the specified value by wrapping it in an {@link Optional}
-	 * 
+	 * Creates a serializable optional which wraps an empty optional.
+	 *
+	 * @param <T>
+	 *            the type of the non-existent value
+	 * @return a {@link SerializableOptional} which wraps an {@link Optional#empty() empty} {@link Optional}
+	 * @see Optional#of(Object)
+	 */
+	public static <T extends Serializable> SerializableOptional<T> empty() {
+		return new SerializableOptional<>(Optional.empty());
+	}
+
+	/**
+	 * Creates a serializable optional for the specified value by wrapping it in an {@link Optional}.
+	 *
+	 * @param <T>
+	 *            the type of the wrapped value; must be non-null
 	 * @param value
 	 *            the value which will be contained in the wrapped {@link Optional}; may be null
 	 * @return a {@link SerializableOptional} which wraps the an optional for the specified value
+	 * @throws NullPointerException
+	 *             if value is null
+	 * @see Optional#of(Object)
+	 */
+	public static <T extends Serializable> SerializableOptional<T> of(T value) throws NullPointerException {
+		return new SerializableOptional<>(Optional.of(value));
+	}
+
+	/**
+	 * Creates a serializable optional for the specified value by wrapping it in an {@link Optional}.
+	 *
+	 * @param <T>
+	 *            the type of the wrapped value
+	 * @param value
+	 *            the value which will be contained in the wrapped {@link Optional}; may be null
+	 * @return a {@link SerializableOptional} which wraps the an optional for the specified value
+	 * @see Optional#ofNullable(Object)
 	 */
 	public static <T extends Serializable> SerializableOptional<T> ofNullable(T value) {
 		return new SerializableOptional<>(Optional.ofNullable(value));
 	}
 
 	/**
-	 * Returns the {@code Optional} instance which with this instance was created.
+	 * Returns the {@code Optional} instance with which this instance was created.
 	 * 
 	 * @return this instance as an {@link Optional}
 	 */

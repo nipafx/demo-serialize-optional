@@ -7,11 +7,11 @@ import java.io.Serializable;
 import java.util.Optional;
 
 /**
- * Demonstrates how to make a class serializable which has an {@link Optional} attribute.
+ * Demonstrates how to make a class serializable which has an {@link Optional} field.
  * <p>
  * Uses the "Transform On Serialization" approach as described in {@link SerializableOptional}.
  * <p>
- * Note that a class exposing an optional attribute via accessors smells of bad design. This is just for demo purposes!
+ * Note that a class exposing an optional field via accessors smells of bad design. This is just for demo purposes!
  */
 public class TransformOnSerialization<T extends Serializable> implements Serializable {
 
@@ -21,13 +21,13 @@ public class TransformOnSerialization<T extends Serializable> implements Seriali
 
 	private transient Optional<T> optional;
 
-	private T otherAttribute;
+	private T otherField;
 
 	// CONSTRUCTION
 
-	public TransformOnSerialization(T optionalValue, T otherAttributeValue) {
+	public TransformOnSerialization(T optionalValue, T otherFieldValue) {
 		this.optional = Optional.ofNullable(optionalValue);
-		this.otherAttribute = otherAttributeValue;
+		this.otherField = otherFieldValue;
 	}
 
 	// SERIALIZATION
@@ -49,8 +49,8 @@ public class TransformOnSerialization<T extends Serializable> implements Seriali
 		return optional;
 	}
 
-	public T getOtherAttribute() {
-		return otherAttribute;
+	public T getOtherField() {
+		return otherField;
 	}
 
 }
