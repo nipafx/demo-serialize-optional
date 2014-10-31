@@ -50,9 +50,9 @@ public class ClassUsingOptionalCorrectly<T> implements Serializable {
 
 		private static final long serialVersionUID = -2167289103897309061L;
 
-		private T optionalValue;
+		private final T optionalValue;
 
-		private T otherFieldValue;
+		private final T otherFieldValue;
 
 		public SerializationProxy(ClassUsingOptionalCorrectly<T> classUsingOptional) {
 			optionalValue = classUsingOptional.optional.orElse(null);
