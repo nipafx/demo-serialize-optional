@@ -27,12 +27,13 @@ public class Demo {
 
 		demo.failSerializingClassUsingOptional();
 		demo.serializeClassUsingOptionalCorrectly();
-		demo.serializeWithTransformOnSerialization();
-		demo.serializeWithTransformOnAccess();
+		demo.serializeTransformForSerializationProxy();
+		demo.serializeTransformForCustomSerializedForm();
+		demo.serializeTransformForAccess();
 
 		print("");
 
-		demo.callMethods();
+		demo.callMethodsWithSerializableOptional();
 	}
 
 	// DEMO
@@ -101,8 +102,8 @@ public class Demo {
 	}
 
 	/**
-	 * A class which contains an {@link Optional} can be serialized directly if the implementation provides customized
-	 * (de)serialization methods.
+	 * A class which contains an {@link Optional} can be serialized directly if the implementation customizes the
+	 * serialization mechanism (e.g. with a serialization proxy).
 	 */
 	private void serializeClassUsingOptionalCorrectly() throws Exception {
 		ClassUsingOptionalCorrectly<String> usingOptional =
@@ -113,28 +114,44 @@ public class Demo {
 				+ deserializedUsingOptional.getOtherField() + "\".");
 	}
 
+	// -- in such a scenario SerializableOptional can be used in three different ways
+
 	/**
-	 * But it can customize the (de)serialization and transform the {@link Optional} to a {@link SerializableOptional}
-	 * on write and the other way on read.
+	 * The class can implement the serialization proxy pattern and let the proxy have a field of type
+	 * {@link SerializableOptional}.
 	 */
-	private void serializeWithTransformOnSerialization() throws Exception {
-		TransformOnSerialization<String> usingOptional =
-				new TransformOnSerialization<>("optionalValue", "otherFieldValue");
-		TransformOnSerialization<String> deserializedUsingOptional = serializeAndDeserialize(usingOptional);
-		print("The deserialized 'TransformOnSerialization' has the values \""
+	private void serializeTransformForSerializationProxy() throws Exception {
+		TransformForSerializationProxy<String> usingOptional =
+				new TransformForSerializationProxy<>("optionalValue", "otherFieldValue");
+		TransformForSerializationProxy<String> deserializedUsingOptional = serializeAndDeserialize(usingOptional);
+		print("The deserialized 'TransformForSerializationProxy' has the values \""
+				+ deserializedUsingOptional.getOptional().get() + "\" / \""
+				+ deserializedUsingOptional.getOtherField() + "\".");
+	}
+
+	/**
+	 * The class can provide a custom serialized form and transform the {@link Optional} to a
+	 * {@link SerializableOptional} on write and the other way on read.
+	 */
+	private void serializeTransformForCustomSerializedForm() throws Exception {
+		TransformForCustomSerializedForm<String> usingOptional =
+				new TransformForCustomSerializedForm<>("optionalValue", "otherFieldValue");
+		TransformForCustomSerializedForm<String> deserializedUsingOptional = serializeAndDeserialize(usingOptional);
+		print("The deserialized 'TransformForCustomSerializedForm' has the values \""
 				+ deserializedUsingOptional.getOptional().get() + "\" / \""
 				+ deserializedUsingOptional.getOtherField() + "\".");
 	}
 
 	/**
 	 * Another possibility is to declare the field as {@link SerializableOptional} which means the default
-	 * (de)serialization process works. Transformation then has to happen on each access to the field.
+	 * (de)serialization process works. Transformation to an {@link Optional} then has to happen on each access to the
+	 * field.
 	 */
-	private void serializeWithTransformOnAccess() throws Exception {
-		TransformOnAccess<String> usingOptional =
-				new TransformOnAccess<>("optionalValue", "otherFieldValue");
-		TransformOnAccess<String> deserializedUsingOptional = serializeAndDeserialize(usingOptional);
-		print("The deserialized 'TransformOnAccess' has the values \""
+	private void serializeTransformForAccess() throws Exception {
+		TransformForAccess<String> usingOptional =
+				new TransformForAccess<>("optionalValue", "otherFieldValue");
+		TransformForAccess<String> deserializedUsingOptional = serializeAndDeserialize(usingOptional);
+		print("The deserialized 'TransformForAccess' has the values \""
 				+ deserializedUsingOptional.getOptional().get() + "\" / \""
 				+ deserializedUsingOptional.getOtherField() + "\".");
 	}
@@ -143,13 +160,15 @@ public class Demo {
 
 	/**
 	 * Shows how to quickly wrap and unwrap an {@link Optional} for RPC method calls which rely on serialization.
+	 * <p>
+	 * Note that {@link SearchAndLog}'s methods have {@link SerializableOptional} as argument and return type.
 	 */
-	private void callMethods() {
-		SearchAndRegister searchAndLog = new SearchAndRegister();
+	private void callMethodsWithSerializableOptional() {
+		SearchAndLog searchAndLog = new SearchAndLog();
 		for (int id = 0; id < 7; id++) {
 			// unwrap the returned optional using 'asOptional'
 			Optional<String> searchResult = searchAndLog.search(id).asOptional();
-			// wrap the optional using 'fromOptional'
+			// wrap the optional using 'fromOptional'; if used often, this could be a static import
 			searchAndLog.log(id, SerializableOptional.fromOptional(searchResult));
 		}
 	}
@@ -191,7 +210,7 @@ public class Demo {
 
 	// INNER CLASS FOR METHOD CALLS
 
-	private static class SearchAndRegister {
+	private static class SearchAndLog {
 
 		Random random = new Random();
 

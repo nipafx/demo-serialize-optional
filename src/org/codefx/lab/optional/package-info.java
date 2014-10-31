@@ -7,9 +7,10 @@
  * <p>
  * Sometimes, a more explicit approach might be necessary (e.g. for RMI) or at least useful (e.g. for the Serialization
  * Proxy Pattern) and for such cases the class {@link org.codefx.lab.optional.SerializableOptional SerializableOptional}
- * exists. {@link org.codefx.lab.optional.TransformOnAccess TransformOnAccess} and
- * {@link org.codefx.lab.optional.TransformOnSerialization TransformOnSerialization} demonstrate how
- * {@code SerializableOptional} mitigates the problem.
+ * exists. {@link org.codefx.lab.optional.TransformForSerializationProxy TransformForSerializationProxy},
+ * {@link org.codefx.lab.optional.TransformForCustomSerializedForm TransformForCustomSerializedForm} and
+ * {@link org.codefx.lab.optional.TransformForAccess TransformForAccess} demonstrate how {@code SerializableOptional}
+ * mitigates the problem.
  * <p>
  * All of this is tied together in {@link org.codefx.lab.optional.Demo Demo}.
  */

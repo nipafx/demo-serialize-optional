@@ -9,11 +9,11 @@ import java.util.Optional;
 /**
  * Demonstrates how to make a class serializable which has an {@link Optional} field.
  * <p>
- * Uses the "Transform On Serialization" approach as described in {@link SerializableOptional}.
+ * Uses the "Transform For Custom Serialized Form" approach as described in {@link SerializableOptional}.
  * <p>
  * Note that a class exposing an optional field via accessors smells of bad design. This is just for demo purposes!
  */
-public class TransformOnSerialization<T extends Serializable> implements Serializable {
+public class TransformForCustomSerializedForm<T extends Serializable> implements Serializable {
 
 	// ATTRIBUTES
 
@@ -25,7 +25,7 @@ public class TransformOnSerialization<T extends Serializable> implements Seriali
 
 	// CONSTRUCTION
 
-	public TransformOnSerialization(T optionalValue, T otherFieldValue) {
+	public TransformForCustomSerializedForm(T optionalValue, T otherFieldValue) {
 		this.optional = Optional.ofNullable(optionalValue);
 		this.otherField = otherFieldValue;
 	}

@@ -1,23 +1,21 @@
 package org.codefx.lab.optional;
 
-import java.io.IOException;
+import java.io.InvalidObjectException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Optional;
 
 /**
- * A class which has an field of type {@link Optional}. It customizes (de)serialization and is thus serializable.
+ * A class which has a field of type {@link Optional}. It uses a serialization proxy to correctly store the field.
  * <p>
  * Note that a class exposing an optional field via accessors smells of bad design. This is just for demo purposes!
  */
+@SuppressWarnings("serial")
 public class ClassUsingOptionalCorrectly<T> implements Serializable {
 
 	// ATTRIBUTES
 
-	private static final long serialVersionUID = 5258682920412938156L;
-
-	private transient Optional<T> optional;
+	private final Optional<T> optional;
 
 	private final T otherField;
 
@@ -28,24 +26,6 @@ public class ClassUsingOptionalCorrectly<T> implements Serializable {
 		this.otherField = otherFieldValue;
 	}
 
-	// SERIALIZATION
-
-	/*
-	 * Alternatively the Serialization Proxy Pattern could be used. See the SerializableOptional for how to do that.
-	 */
-
-	private void writeObject(ObjectOutputStream out) throws IOException {
-		out.defaultWriteObject();
-		// write the value contained in #optional
-		out.writeObject(optional.orElse(null));
-	}
-
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		in.defaultReadObject();
-		// read the value and create an 'Optional' from it
-		optional = Optional.ofNullable((T) in.readObject());
-	}
-
 	// ATTRIBUTE ACCESS
 
 	public Optional<T> getOptional() {
@@ -54,6 +34,35 @@ public class ClassUsingOptionalCorrectly<T> implements Serializable {
 
 	public T getOtherField() {
 		return otherField;
+	}
+
+	// SERIALIZATION BY PROXY
+
+	private Object writeReplace() {
+		return new SerializationProxy<T>(this);
+	}
+
+	private void readObject(ObjectInputStream stream) throws InvalidObjectException {
+		throw new InvalidObjectException("Proxy required.");
+	}
+
+	private static class SerializationProxy<T> implements Serializable {
+
+		private static final long serialVersionUID = -2167289103897309061L;
+
+		private T optionalValue;
+
+		private T otherFieldValue;
+
+		public SerializationProxy(ClassUsingOptionalCorrectly<T> classUsingOptional) {
+			optionalValue = classUsingOptional.optional.orElse(null);
+			otherFieldValue = classUsingOptional.otherField;
+		}
+
+		private Object readResolve() {
+			return new ClassUsingOptionalCorrectly<T>(optionalValue, otherFieldValue);
+		}
+
 	}
 
 }

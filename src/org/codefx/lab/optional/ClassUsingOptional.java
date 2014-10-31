@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.util.Optional;
 
 /**
- * A class which has an field of type {@link Optional}. Because it does not treat this correctly, it fails to be
- * executed.
+ * A class which has a field of type {@link Optional}. Because it does not treat this correctly, it fails to be
+ * serialized.
  * <p>
  * Note that a class exposing an optional field via accessors smells of bad design. This is just for demo purposes!
  */
